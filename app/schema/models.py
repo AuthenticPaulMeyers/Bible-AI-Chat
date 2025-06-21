@@ -31,7 +31,7 @@ class Message(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
-    sender = db.relationship('User', backref='messages', lazy=True)
+    sender = db.relationship('Users', backref='messages', lazy=True)
     conversation = db.relationship('Conversation', backref='messages', lazy=True)
     character = db.relationship('Character', backref='messages', lazy=True)
     def __repr__(self) -> str:

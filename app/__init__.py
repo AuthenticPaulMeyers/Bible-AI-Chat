@@ -17,6 +17,7 @@ def create_app(test_config=None):
             SECRET_KEY=os.environ.get('SECRET_KEY'),
             SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URL'),
             JWT_SECRET_KEY=os.getenv('JWT_SECRET_KEY'),
+            API_KEY=os.getenv('API_KEY'),
             SQLALCHEMY_TRACK_MODIFICATIONS=False
         )
     else:
@@ -32,9 +33,13 @@ def create_app(test_config=None):
     Migrate(app, db)
     # import more blueprints
     from .auth.user_auth import auth
+    from .routes.generate_stories import story_bp
+    from .routes.character_chat import chat_bp
     
     # configure blueprints here
     app.register_blueprint(auth)
+    app.register_blueprint(story_bp)
+    app.register_blueprint(chat_bp)
     
     # exception handling | catch runtime errors here
     @app.errorhandler(HTTP_404_NOT_FOUND)
