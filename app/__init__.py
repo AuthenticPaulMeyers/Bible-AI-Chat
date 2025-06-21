@@ -1,12 +1,10 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify # pyright: ignore[reportMissingImports]
 import os
 from .schema.models import db
-from flask_jwt_extended import JWTManager
-from dotenv import load_dotenv
-from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager # pyright: ignore[reportMissingImports]
+from dotenv import load_dotenv # pyright: ignore[reportMissingImports]
+from flask_migrate import Migrate # pyright: ignore[reportMissingImports]
 from .constants.http_status_codes import HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_503_SERVICE_UNAVAILABLE
-# import more blueprints
-from .auth.user_auth import auth
 
 load_dotenv()
 
@@ -32,7 +30,9 @@ def create_app(test_config=None):
     JWTManager(app)
     # initialise migrations
     Migrate(app, db)
-
+    # import more blueprints
+    from .auth.user_auth import auth
+    
     # configure blueprints here
     app.register_blueprint(auth)
     

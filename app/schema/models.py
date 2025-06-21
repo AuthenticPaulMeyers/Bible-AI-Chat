@@ -1,11 +1,12 @@
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy # pyright: ignore[reportMissingImports]
 
 # initialise the database
 db = SQLAlchemy()
 
 # Users table
 class Users(db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), nullable=False, unique=True)
     email = db.Column(db.String(90), nullable=False, unique=True)
@@ -18,5 +19,40 @@ class Users(db.Model):
     def __repr__(self) -> str:
         return f'Users>>>{self.id}'
 
+# Messages table
+class Message(db.Model):
+    __tablename__ = 'messages'
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    conversation_id = db.Column(db.Integer, db.ForeignKey('conversations.id'), nullable=False, index=True)
+    content = db.Column(db.Text, nullable=False)
+    role = db.Column(db.String(30), nullable=False, default='user')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    sender = db.relationship('User', backref='messages', lazy=True)
+    conversation = db.relationship('Conversation', backref='messages', lazy=True)
+    def __repr__(self) -> str:
+        return f'Message>>>{self.id}'
 
-# Add more tables as required.
+class Conversation(db.Model):
+    __tablename__ = 'conversations'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    def __repr__(self) -> str:
+        return f'Conversation>>>{self.id}'
+
+class Character(db.Model):
+    __tablename__ = 'bible_character'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    def __repr__(self) -> str:
+        return f'Character>>>{self.id}'
+
+class Story(db.Model):
+    __tablename__ = 'bible_stories'
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    def __repr__(self) -> str:
+        return f'Story>>>{self.id}'
