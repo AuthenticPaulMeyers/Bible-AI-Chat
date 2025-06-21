@@ -16,7 +16,6 @@ def register():
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
-        bio = request.form.get('bio')
         password = request.form.get('password')
         # File upload
         file = request.files.get('file')
@@ -28,7 +27,7 @@ def register():
         if not username.isalnum() or " " in username:
             return jsonify({"error": "Name should not contain numbers or symbols"}), HTTP_400_BAD_REQUEST
         
-        if password == '' or not password or not username or not email or not bio or bio == '':
+        if password == '' or not password or not username or not email:
             return jsonify({'error': 'Required fields should not be empty.'})
         
         # validate the user email
@@ -53,7 +52,7 @@ def register():
         if not file_url:
             return jsonify({'error': 'Invalid file type.'}), HTTP_400_BAD_REQUEST
 
-        user = Users(username=username, email=email, password_hash=password_hashed, bio=bio, profile_pic_url=file_url)
+        user = Users(username=username, email=email, password_hash=password_hashed, profile_pic_url=file_url)
         db.session.add(user)
         db.session.commit()
 
@@ -62,7 +61,6 @@ def register():
             'user':{
                 'username': username,
                 'email': email,
-                'bio': bio,
                 'profile_pic_url': file_url
             }
         }), HTTP_201_CREATED
@@ -111,7 +109,6 @@ def current_user_profile():
             'name': user.username,
             'email': user.email,
             'profile': user.profile_pic_url,
-            'bio': user.bio
         }
         }), HTTP_200_OK
     else:
