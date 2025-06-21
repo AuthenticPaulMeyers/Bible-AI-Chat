@@ -7,9 +7,8 @@ chat_bp = Blueprint('character-chat', __name__, url_prefix='/api/character')
 
 @chat_bp.route('/chat', methods=['POST'])
 def chat_with_bible_character():
-    user_message = request.json.get('message')
 
-    character_id = 1
+    character_id = 2
 
     user_id = 1
     # get the real user Id when the user logs in
@@ -18,9 +17,6 @@ def chat_with_bible_character():
 
     if not user:
         return jsonify({'error': 'User not found.'}), HTTP_404_NOT_FOUND
-    
-    if not user_message or user_message == '':
-        return jsonify({'error': 'Input field should not be empty.'}), HTTP_400_BAD_REQUEST
     
 
     conversation_history = [
@@ -31,8 +27,13 @@ def chat_with_bible_character():
         }
     ]
 
-    response, conversation_history = generate_bible_stories(user_message, conversation_history)
+    while True:
+        user_message = request.json.get('message')
+        if not user_message or user_message == '':
+            return jsonify({'error': 'Input field should not be empty.'}), HTTP_400_BAD_REQUEST
+    
+        response, conversation_history = generate_bible_stories(user_message, conversation_history)
 
-    return jsonify({'response': response}), HTTP_200_OK
+        return jsonify({'response': response}), HTTP_200_OK
         
 
