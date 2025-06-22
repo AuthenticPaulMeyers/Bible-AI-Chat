@@ -4,9 +4,19 @@ from .schema.models import db
 from flask_jwt_extended import JWTManager # pyright: ignore[reportMissingImports]
 from dotenv import load_dotenv # pyright: ignore[reportMissingImports]
 from flask_migrate import Migrate # pyright: ignore[reportMissingImports]
-from .constants.http_status_codes import HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_503_SERVICE_UNAVAILABLE
+from .constants.http_status_codes import HTTP_429_TOO_MANY_REQUESTS, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_503_SERVICE_UNAVAILABLE
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 load_dotenv()
+
+limiter = Limiter(
+    get_remote_address,
+    default_limits=["100 per day", "50 per hour"],
+    storage_uri="memory://",
+    strategy="moving-window",
+)  
+
 
 # initiate app
 def create_app(test_config=None):
@@ -31,6 +41,10 @@ def create_app(test_config=None):
     JWTManager(app)
     # initialise migrations
     Migrate(app, db)
+    # initialise the limiter here
+    limiter.init_app(app)
+
+
     # import more blueprints
     from .auth.user_auth import auth
     from .routes.generate_stories import story_bp
@@ -53,5 +67,10 @@ def create_app(test_config=None):
     @app.errorhandler(HTTP_503_SERVICE_UNAVAILABLE)
     def handle_connection_error(error):
         return jsonify({'error': "Service is currently unavailable. Our team is working on it!"}), HTTP_503_SERVICE_UNAVAILABLE
+
+    @app.errorhandler(HTTP_429_TOO_MANY_REQUESTS)
+    def handle_too_many_requests(error):
+        return jsonify({'error': "You have reached your limit for the day. Please try again after 24 hours."}), HTTP_429_TOO_MANY_REQUESTS
+
 
     return app

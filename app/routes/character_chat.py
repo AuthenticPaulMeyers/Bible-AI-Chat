@@ -3,11 +3,13 @@ from ..schema.models import db, Users, Character, Message
 from ..constants.http_status_codes import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_201_CREATED
 from ..services.AIgenerateStories import generate_bible_stories
 from flask_jwt_extended import jwt_required, get_jwt_identity # pyright: ignore[reportMissingImports]
+from app import limiter, get_remote_address
 
 chat_bp = Blueprint('character-chat', __name__, url_prefix='/api/character')
 
 # character chat route
 @chat_bp.route('/<int:character_id>/chat', methods=['POST'])
+@limiter.limit("150 per day", key_func=get_remote_address)
 @jwt_required()
 def chat_with_bible_character(character_id):
     # get character to chat with
@@ -90,7 +92,6 @@ def delete_chat(character_id):
                 return {'message': 'Cleared chat successfully.'}, HTTP_200_OK
         except Exception as e:
             print(f'error: {e}')
-
            
 # Add character
 @chat_bp.route('/add', methods=['POST'])
