@@ -4,23 +4,11 @@ from dotenv import load_dotenv # pyright: ignore[reportMissingImports]
 
 load_dotenv()
 
-def generate_bible_stories(prompt, conversation_history):
+def generate_bible_stories(conversation_history):
     
     client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.getenv('API_KEY')
-    )
-
-    conversation_history.append(
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "text",
-                    "text": prompt
-                }
-            ]
-        }
     )
 
     try:
@@ -31,10 +19,8 @@ def generate_bible_stories(prompt, conversation_history):
         )
         model_response = completion.choices[0].message.content
 
-        conversation_history.append({"role": "assistant", "content": model_response})
-
-        return model_response, conversation_history
+        return model_response
 
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-        return "An unexpected error occurred. Please try again.", conversation_history
+        return "An unexpected error occurred. Please try again."

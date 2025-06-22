@@ -36,6 +36,13 @@ class Message(db.Model):
     character = db.relationship('Character', backref='messages', lazy=True)
     def __repr__(self) -> str:
         return f'Message>>>{self.id}'
+    
+    def to_dict(self):
+        return {
+            "role": self.role, 
+            "content": self.content
+        }
+
 
 class Conversation(db.Model):
     __tablename__ = 'conversations'
@@ -43,13 +50,16 @@ class Conversation(db.Model):
     title = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    user_id_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"))
+    user = db.relationship('Users', backref='conversations', lazy=True)
+
     def __repr__(self) -> str:
         return f'Conversation>>>{self.id}'
 
 class Character(db.Model):
     __tablename__ = 'bible_characters'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(255), nullable=False, unique=True)
     description = db.Column(db.Text, nullable=False)
     def __repr__(self) -> str:
         return f'Character>>>{self.id}'
@@ -58,8 +68,14 @@ class Story(db.Model):
     __tablename__ = 'bible_stories'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(30), nullable=False, default='user')
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False, index=True)
 
     def __repr__(self) -> str:
         return f'Story>>>{self.id}'
+    def to_dict(self):
+        return {
+            "role": self.role,
+            "content": self.content
+        }
