@@ -24,7 +24,6 @@ class Message(db.Model):
     __tablename__ = 'messages'
     id = db.Column(db.Integer, primary_key=True)
     sender_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False, index=True)
-    conversation_id = db.Column(db.Integer, db.ForeignKey('conversations.id', ondelete="CASCADE"), nullable=False, index=True)
     content = db.Column(db.Text, nullable=False)
     role = db.Column(db.String(30), nullable=False, default='user')
     character_id = db.Column(db.Integer, db.ForeignKey('bible_characters.id', ondelete="CASCADE"), nullable=False, index=True)
@@ -32,7 +31,6 @@ class Message(db.Model):
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
     sender = db.relationship('Users', backref='messages', lazy=True)
-    conversation = db.relationship('Conversation', backref='messages', lazy=True)
     character = db.relationship('Character', backref='messages', lazy=True)
     def __repr__(self) -> str:
         return f'Message>>>{self.id}'
@@ -42,19 +40,6 @@ class Message(db.Model):
             "role": self.role, 
             "content": self.content
         }
-
-
-class Conversation(db.Model):
-    __tablename__ = 'conversations'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
-    user_id_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"))
-    user = db.relationship('Users', backref='conversations', lazy=True)
-
-    def __repr__(self) -> str:
-        return f'Conversation>>>{self.id}'
 
 class Character(db.Model):
     __tablename__ = 'bible_characters'

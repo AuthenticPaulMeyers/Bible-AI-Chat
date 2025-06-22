@@ -1,5 +1,5 @@
 from flask import request, Blueprint, jsonify # pyright: ignore[reportMissingImports]
-from ..schema.models import db, Users, Character, Message, Conversation
+from ..schema.models import db, Users, Character, Message
 from ..constants.http_status_codes import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_201_CREATED
 from ..services.AIgenerateStories import generate_bible_stories
 from flask_jwt_extended import jwt_required, get_jwt_identity # pyright: ignore[reportMissingImports]
@@ -7,7 +7,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity # pyright: ignore[
 chat_bp = Blueprint('character-chat', __name__, url_prefix='/api/character')
 
 # character chat route
-@chat_bp.route('/<character_id>/chat', methods=['POST'])
+@chat_bp.route('/<int:character_id>/chat', methods=['POST'])
 @jwt_required()
 def chat_with_bible_character(character_id):
     # get character to chat with
@@ -27,21 +27,19 @@ def chat_with_bible_character(character_id):
         }
     ]
 
-    while True:
+    try:
         user_message = request.json.get('message')
         if not user_message or user_message == '':
             return jsonify({'error': 'Input field should not be empty.'}), HTTP_400_BAD_REQUEST
-        
-        conversation_id = 1
 
-        db.session.add(Message(sender_id=user_id, content=user_message, role='user', character_id=character_id, conversation_id=conversation_id))
+        db.session.add(Message(sender_id=user_id, content=user_message, role='user', character_id=character_id))
         db.session.commit()
 
         history = Message.query.filter_by(sender_id=user_id).order_by(Message.created_at).all()
         messages += [msg.to_dict() for msg in history]
 
         reply = generate_bible_stories(messages)
-        db.session.add(Message(sender_id=user_id, role='assistant', content=reply, character_id=character_id, conversation_id=conversation_id))
+        db.session.add(Message(sender_id=user_id, role='assistant', content=reply, character_id=character_id))
         db.session.commit()
 
         conversation_history = Message.query.filter_by(sender_id=user_id).order_by(Message.created_at).all()
@@ -49,40 +47,84 @@ def chat_with_bible_character(character_id):
         conversation_history_dicts = [msg.to_dict() for msg in conversation_history]
 
         return jsonify({'response': conversation_history_dicts}), HTTP_200_OK
-        
-# delete message
-@chat_bp.route('/chat/<int:message_id>', methods=['DELETE'])
+    except Exception as e:
+        print(f'Error: {e}')
+    
+# delete messages with the character
+@chat_bp.route('/<int:character_id>/chat/<int:message_id>/delete', methods=['DELETE'])
 @jwt_required()
-def delete_massage_from_chat(message_id):
-    user_id = get_jwt_identity()
-
-    if request.method == 'DELETE':
-        message = Message.query.filter_by(sender_id=user_id, id=message_id).first()
-        if not message:
-            return {'error': 'Message not found.'}
-        
-        db.session.delete(message)
-        db.session.commit()
-
-        return {}, HTTP_200_OK
-
-# Delete chat
-@chat_bp.route('/chat/<int:conversation_id>', methods=['DELETE'])
-@jwt_required()
-def delete_massage_from_chat(conversation_id):
+def delete_massage_from_chat(message_id, character_id):
     user_id = get_jwt_identity()
 
     if request.method == 'DELETE':
         try:
-            db.session.query(Message).join(Conversation).filter(
-            Message.sender_id == user_id,
-            Conversation.id == conversation_id
-            ).delete(synchronize_session=False)
+            message = Message.query.filter_by(sender_id=user_id, id=message_id, character_id=character_id).first()
+            if not message:
+                return {'error': 'Message not found.'}
             
+            db.session.delete(message)
+            db.session.commit()
+
+            conversation_history = Message.query.filter_by(sender_id=user_id).order_by(Message.created_at).all()
+
+            conversation_history_dicts = [msg.to_dict() for msg in conversation_history]
+
+            return jsonify({'response': conversation_history_dicts}), HTTP_200_OK
+        
         except Exception as e:
-            db.session.rollback()
             print(f'error: {e}')
 
-        return {}, HTTP_200_OK
+# Delete/clear whole chat with character
+@chat_bp.route('/<int:character_id>/chat/clear', methods=['DELETE'])
+@jwt_required()
+def delete_chat(character_id):
+    user_id = get_jwt_identity()
 
+    if request.method == 'DELETE':
+        try: 
+            chat = Message.query.filter_by(sender_id=user_id, character_id=character_id).all()
+            if chat or chat != None:
+                for msg in chat:
+                    db.session.delete(msg)
+                    db.session.commit()
+                return {'message': 'Cleared chat successfully.'}, HTTP_200_OK
+        except Exception as e:
+            print(f'error: {e}')
 
+           
+# Add character
+@chat_bp.route('/add', methods=['POST'])
+@jwt_required()
+def add_bible_character():
+    name = request.json.get('name')
+    description = request.json.get('description')
+
+    if not name or name == '' or not description or description == '':
+        return jsonify({'error': 'Required fields should not be empty.'})
+    
+    if request.method == 'POST':
+        try:
+            db.session.add(Character(name=name, description=description))
+            db.session.commit()
+            return jsonify({'character':{
+                'name': name,
+                'description': description
+            }}), HTTP_201_CREATED
+        
+        except Exception as e:
+            print(f'error: {e}')
+
+# Delete character
+@chat_bp.route('/<int:character_id>/delete', methods=['DELETE'])
+@jwt_required()
+def delete_bible_character(character_id):
+
+    if request.method == 'DELETE':
+        try:
+            character = Character.query.filter_by(id=character_id).first()
+            db.session.delete(character)
+            db.session.commit()
+            return jsonify({'message': 'Character removed successfully.'}), HTTP_200_OK
+        except Exception as e:
+            print(f'error: {e}')
+            
