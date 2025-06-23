@@ -1,16 +1,4 @@
-# Flask-REST-API-Boilerplate
-## Flask REST API starter kit for python flask framework
+# Biblia AI Chat API
+## A REST API to chat with Bible characters using AI
 
-Starter kit for Flask REST API. This repo includes a well presented folder structure and configurations that can be customized to suit the project requirements.<br/><br/>
-
-### 1. Clone the repository.<br/>
-use `git clone https://github.com/AuthenticPaulMeyers/Flask-REST-API-Boilerplate.git`
-
-### 2. Install all the dependencies.<br/>
-Make sure you have latest version of Python installed. <br>
-Create a virtual environment to install the dependencies. <br/><br/>
-Use `python -m venv venv`
-
-Then run `pip install -r requirements.txt`
-
-> Happy coding!
+This API uses DeepSeek r-1 model with custom prompt to create Bible characters where a user can interact with. 
