@@ -1,0 +1,554 @@
+swagger: "2.0"
+info:
+  title: Bootopia API
+  description: A social network for reading and sharing books.
+  version: "1.0"
+basePath: /api/v1.0
+schemes:
+  - http
+tags:
+  - name: Auth
+    description: User Authentication
+  - name: Users
+    description: User Management
+  - name: Books
+    description: CRUD for books
+  - name: Posts
+    description: CRUD for posts
+  - name: Comments
+    description: CRUD for comments on posts
+  - name: Likes
+    description: CRUD for likes on posts
+  - name: Summary
+    description: CRUD for book summaries
+  - name: Quotes
+    description: CRUD for quotes from books
+  - name: Tags
+    description: CRUD for tags associated with books
+  - name: Recommendations
+    description: User recommendations for books
+  - name: Notifications
+    description: User notifications for activities
+  - name: Bookmarks
+    description: User bookmarks for books
+  
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
+
+security:
+  - Bearer: []
+
+paths:
+  # Authentication and User Management
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      parameters:
+        - in: body
+          name: user
+          description: The user to register
+          required: true
+          schema:
+            $ref: "#/definitions/User"
+      responses:
+        201:
+          description: User registered successfully
+        400:
+          description: Invalid input
+        500:
+          description: Internal server error
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login a user
+      parameters:
+        - in: body
+          name: user
+          description: The user to login
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+      responses:
+        200:
+          description: User logged in successfully
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+        400:
+          description: Invalid input
+  /auth/me:
+    get:
+      tags:
+        - Auth
+      summary: Get current user information
+      responses:
+        200:
+          description: User information retrieved successfully
+          schema:
+            $ref: "#/definitions/User"
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+  /auth/reset-password-request:
+    post:
+      tags:
+        - Auth
+      summary: Request a password reset
+      parameters:
+        - in: body
+          name: email
+          description: The email of the user requesting a password reset
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+      responses:
+        200:
+          description: Password reset request successful
+        400:
+          description: Invalid email address
+        500:
+          description: Internal server error
+  /auth/reset-password:
+    post:
+      tags:
+        - Auth
+      summary: Reset a user's password
+      parameters:
+        - in: body
+          name: reset_info
+          description: The information required to reset the password
+          required: true
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+              new_password:
+                type: string
+      responses:
+        200:
+          description: Password reset successful
+        400:
+          description: Invalid input or token
+        500:
+          description: Internal server error
+  /auth/token/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Refresh user authentication token
+      parameters:
+        - in: body
+          name: refresh_token
+          description: The refresh token to use
+          required: true
+          schema:
+            type: object
+            properties:
+              refresh_token:
+                type: string
+      responses:
+        200:
+          description: Token refreshed successfully
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+  # CRUD operations for books
+  /books:
+    get:
+      tags:
+        - Books
+      summary: Get all books
+      responses:
+        200:
+          description: A list of books
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Book"
+  /books/new:
+    post:
+      tags:
+        - Books
+      summary: Create a new book
+      parameters:
+        - in: body
+          name: book
+          description: The book to create
+          required: true
+          schema:
+            $ref: "#/definitions/Book"
+      responses:
+        201:
+          description: Book created successfully
+        400:
+          description: Invalid input
+        500:
+          description: Internal server error
+  /books/get/{id}:
+    get:
+      tags:
+        - Books
+      summary: Get a book by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: The ID of the book to retrieve
+      responses:
+        200:
+          description: A book object
+          schema:
+            $ref: "#/definitions/Book"
+        404:
+          description: Book not found
+        500:
+          description: Internal server error
+  /books/update/{id}:
+    put:
+      tags:
+        - Books
+      summary: Update a book by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: The ID of the book to update
+        - in: body
+          name: book
+          description: The updated book object
+          required: true
+          schema:
+            $ref: "#/definitions/Book"
+      responses:
+        200:
+          description: Book updated successfully
+        400:
+          description: Invalid input
+        404:
+          description: Book not found
+        500:
+          description: Internal server error
+  /books/delete/{id}:
+    delete:
+      tags:
+        - Books
+      summary: Delete a book by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: The ID of the book to delete
+      responses:
+        204:
+          description: Book deleted successfully
+        404:
+          description: Book not found
+        500:
+          description: Internal server error
+  /books/search:
+    get:
+      tags:
+        - Books
+      summary: Search for books based on author or book title
+      parameters:
+        - in: query
+          name: query
+          required: true
+          type: string
+          description: The search term to use
+      responses:
+        200:
+          description: A list of books matching the search term
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Book"
+        400:
+          description: Invalid search term
+        500:
+          description: Internal server error
+  # user management
+  /users/{id}/follow:
+    post:
+      tags:
+        - Users
+      summary: Follow a user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: The ID of the user to follow
+      responses:
+        200:
+          description: User followed successfully
+        404:
+          description: User not found
+        500:
+          description: Internal server error
+  /users/{id}/unfollow:
+    post:
+      tags:
+        - Users
+      summary: Unfollow a user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: The ID of the user to unfollow
+      responses:
+        200:
+          description: User unfollowed successfully
+        404:
+          description: User not found
+        500:
+          description: Internal server error
+  /users/{id}/followers:
+    get:
+      tags:
+        - Users
+      summary: Get followers of a user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: The ID of the user whose followers to retrieve
+      responses:
+        200:
+          description: A list of followers
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/User"
+        404:
+          description: User not found
+        500:
+          description: Internal server error
+  /users/{id}/following:
+    get:
+      tags:
+        - Users
+      summary: Get users that a user is following
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: The ID of the user whose following list to retrieve
+      responses:
+        200:
+          description: A list of users that the user is following
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/User"
+        404:
+          description: User not found
+        500:
+          description: Internal server error
+  /users/{id}/profile:
+    get:
+      tags:
+        - Users
+      summary: Get user profile by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: The ID of the user to retrieve the profile for
+      responses:
+        200:
+          description: User profile retrieved successfully
+          schema:
+            $ref: "#/definitions/User"
+        404:
+          description: User not found
+        500:
+          description: Internal server error
+  
+    get:
+      tags:
+        - Posts
+      summary: Get all posts by a specific user
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          type: integer
+          description: The ID of the user whose posts to retrieve
+      responses:
+        200:
+          description: A list of posts by the user
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Post"
+        404:
+          description: User not found or no posts available
+        500:
+          description: Internal server error
+  # Character route
+  /characters/add:
+    post:
+      tags:
+        - Characters
+      summary: Add Bible character to chat list
+      parameters:
+        - in: body
+          name: character
+          required: true
+          type: string
+          description: The character to create
+          schema:
+            $ref: "#/definitions/Character"
+      responses:
+        201:
+          description: Character created successfully
+        400:
+          description: Invalid input
+        500:
+          description: Internal server error
+  /characters/{character_id}/delete:
+    delete:
+      tags:
+        - Characters
+      summary: Delete a character by ID
+      parameters:
+        - in: path
+          name: character_id
+          required: true
+          type: integer
+          description: The ID of the character to delete
+      responses:
+        204:
+          description: Character deleted successfully
+        404:
+          description: Character not found
+        500:
+          description: Internal server error
+  /characters/search:
+    get:
+      tags:
+        - Characters
+      summary: Search for character chat by name
+      parameters:
+        - in: query
+          name: query
+          required: true
+          type: string
+          description: The search term to use
+      responses:
+        200:
+          description: The name of the character
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Character"
+        400:
+          description: Invalid search term
+        500:
+          description: Internal server error
+  /characters/{character_id}/chat/clear:
+    delete:
+      tags:
+        - Characters
+      summary: Clear character chat with character ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: The ID of the character to delete its chat
+      responses:
+        204:
+          description: Chat deleted successfully
+        404:
+          description: Character chat not found
+        500:
+          description: Internal server error
+# Define database tables
+definitions:
+  Character:
+    type: object
+    required:
+      - name
+      - description
+      - profile_image_url
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      profile_image_url:
+        type: string
+  Users:
+    type: object
+    required:
+      - email
+      - username
+      - password
+      - profile_picture_url
+      - bio
+    properties:
+      email:
+        type: string
+      username:
+        type: string
+      password:
+        type: string
+      profile_picture_url:
+        type: string
+      bio:
+        type: string
+  Message:
+    type: object
+    required:
+      - sender_id
+      - content
+      - role
+      - character_id
+    properties:
+      sender_id:
+        type: integer
+      character_id:
+        type: integer
+      role:
+        type: string
+        enum: [user, assistant]
+      content:
+        type: string

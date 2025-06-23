@@ -3,7 +3,7 @@ from ..schema.models import db, Users
 from ..constants.http_status_codes import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_201_CREATED
 from ..services.AIgenerateStories import generate_bible_stories
 
-story_bp = Blueprint('stories', __name__, url_prefix='/api/chat')
+story_bp = Blueprint('stories', __name__, url_prefix='/api/stories')
 
 @story_bp.route('/read-stories', methods=['POST'])
 def get_ai_stories():
@@ -18,7 +18,6 @@ def get_ai_stories():
     
     if not user_prompt or user_prompt == '':
         return jsonify({'error': 'Input field should not be empty.'}), HTTP_400_BAD_REQUEST
-    
 
     conversation_history = [
         {

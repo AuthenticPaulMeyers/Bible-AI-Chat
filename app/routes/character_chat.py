@@ -5,7 +5,7 @@ from ..services.AIgenerateStories import generate_bible_stories
 from flask_jwt_extended import jwt_required, get_jwt_identity # pyright: ignore[reportMissingImports]
 from app import limiter, get_remote_address
 
-chat_bp = Blueprint('character-chat', __name__, url_prefix='/api/character')
+chat_bp = Blueprint('character-chat', __name__, url_prefix='/api/characters')
 
 # character chat route
 @chat_bp.route('/<int:character_id>/chat', methods=['POST'])
@@ -128,4 +128,28 @@ def delete_bible_character(character_id):
             return jsonify({'message': 'Character removed successfully.'}), HTTP_200_OK
         except Exception as e:
             print(f'error: {e}')
-            
+
+# Search character by name
+@chat_bp.route('/search', methods=['GET'])
+@jwt_required()
+def search_character():
+    get_name = request.json.get('name')
+
+    if not get_name or get_name == '':
+        return jsonify({'error': 'Missing required search query.'}), HTTP_400_BAD_REQUEST
+    
+    if request.method == 'GET':
+        try:
+            query = Character.query.filter_by(name=get_name).first()
+            if not query:
+                return jsonify({'error': 'No results found.'}), HTTP_404_NOT_FOUND
+            return jsonify({
+                'results':{
+                    'id': query.id,
+                    'name': query.name
+                }
+            }), HTTP_200_OK
+        # catch any other unexpected error
+        except Exception as e:
+            print(f'Unexpected error: {e}')
+    

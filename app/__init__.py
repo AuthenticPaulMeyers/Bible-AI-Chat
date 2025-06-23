@@ -1,12 +1,13 @@
-from flask import Flask, jsonify # pyright: ignore[reportMissingImports]
+from flask import Flask, jsonify, send_from_directory # pyright: ignore[reportMissingImports]
 import os
 from .schema.models import db
 from flask_jwt_extended import JWTManager # pyright: ignore[reportMissingImports]
 from dotenv import load_dotenv # pyright: ignore[reportMissingImports]
 from flask_migrate import Migrate # pyright: ignore[reportMissingImports]
 from .constants.http_status_codes import HTTP_429_TOO_MANY_REQUESTS, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_503_SERVICE_UNAVAILABLE
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+from flask_limiter import Limiter # pyright: ignore[reportMissingImports]
+from flask_limiter.util import get_remote_address # pyright: ignore[reportMissingImports]
+from flask_swagger_ui import get_swaggerui_blueprint # pyright: ignore[reportMissingImports]
 
 load_dotenv()
 
@@ -17,6 +18,15 @@ limiter = Limiter(
     strategy="moving-window",
 )  
 
+# swagger ui setup
+SWAGGER_URL = '/docs'
+API_URL = '/static/swagger.yaml'
+
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={'app_name': "Book API with YAML"}
+)
 
 # initiate app
 def create_app(test_config=None):
@@ -44,6 +54,13 @@ def create_app(test_config=None):
     # initialise the limiter here
     limiter.init_app(app)
 
+    # initialise swagger ui blueprint
+    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+
+    # Serve the Swagger YAML file
+    @app.route('/static/swagger.yaml')
+    def send_swagger():
+        return send_from_directory('static', 'swagger.yaml')
 
     # import more blueprints
     from .auth.user_auth import auth
