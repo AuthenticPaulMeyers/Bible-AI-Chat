@@ -13,7 +13,7 @@ load_dotenv()
 
 limiter = Limiter(
     get_remote_address,
-    default_limits=["100 per day", "50 per hour"],
+    default_limits=["150 per day", "60 per minute"],
     storage_uri="memory://",
     strategy="moving-window",
 )  
@@ -25,7 +25,7 @@ API_URL = '/static/swagger.yaml'
 swaggerui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
-    config={'app_name': "Book API with YAML"}
+    config={'app_name': "AI Chat API with YAML"}
 )
 
 # initiate app

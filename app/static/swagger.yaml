@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   title: Biblia AI Chat API
-  description: A social network for reading and sharing books.
+  description: An AI Chat API to interact with Bible characters.
   version: "1.0"
 basePath: /api/v1.0
 schemes:
@@ -9,8 +9,6 @@ schemes:
 tags:
   - name: Auth
     description: User Authentication
-  - name: Users
-    description: User Management
   - name: Characters
     description: Chat with characters
 
@@ -163,225 +161,6 @@ paths:
           description: Unauthorized
         500:
           description: Internal server error
-  # CRUD operations for books
-  /books:
-    get:
-      tags:
-        - Books
-      summary: Get all books
-      responses:
-        200:
-          description: A list of books
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/Book"
-  /books/new:
-    post:
-      tags:
-        - Books
-      summary: Create a new book
-      parameters:
-        - in: body
-          name: book
-          description: The book to create
-          required: true
-          schema:
-            $ref: "#/definitions/Book"
-      responses:
-        201:
-          description: Book created successfully
-        400:
-          description: Invalid input
-        500:
-          description: Internal server error
-  /books/get/{id}:
-    get:
-      tags:
-        - Books
-      summary: Get a book by ID
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: The ID of the book to retrieve
-      responses:
-        200:
-          description: A book object
-          schema:
-            $ref: "#/definitions/Book"
-        404:
-          description: Book not found
-        500:
-          description: Internal server error
-  /books/update/{id}:
-    put:
-      tags:
-        - Books
-      summary: Update a book by ID
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: The ID of the book to update
-        - in: body
-          name: book
-          description: The updated book object
-          required: true
-          schema:
-            $ref: "#/definitions/Book"
-      responses:
-        200:
-          description: Book updated successfully
-        400:
-          description: Invalid input
-        404:
-          description: Book not found
-        500:
-          description: Internal server error
-  /books/delete/{id}:
-    delete:
-      tags:
-        - Books
-      summary: Delete a book by ID
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: The ID of the book to delete
-      responses:
-        204:
-          description: Book deleted successfully
-        404:
-          description: Book not found
-        500:
-          description: Internal server error
-  /books/search:
-    get:
-      tags:
-        - Books
-      summary: Search for books based on author or book title
-      parameters:
-        - in: query
-          name: query
-          required: true
-          type: string
-          description: The search term to use
-      responses:
-        200:
-          description: A list of books matching the search term
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/Book"
-        400:
-          description: Invalid search term
-        500:
-          description: Internal server error
-  # user management
-  /users/{id}/follow:
-    post:
-      tags:
-        - Users
-      summary: Follow a user
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: integer
-          description: The ID of the user to follow
-      responses:
-        200:
-          description: User followed successfully
-        404:
-          description: User not found
-        500:
-          description: Internal server error
-  /users/{id}/unfollow:
-    post:
-      tags:
-        - Users
-      summary: Unfollow a user
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: integer
-          description: The ID of the user to unfollow
-      responses:
-        200:
-          description: User unfollowed successfully
-        404:
-          description: User not found
-        500:
-          description: Internal server error
-  /users/{id}/followers:
-    get:
-      tags:
-        - Users
-      summary: Get followers of a user
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: integer
-          description: The ID of the user whose followers to retrieve
-      responses:
-        200:
-          description: A list of followers
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/User"
-        404:
-          description: User not found
-        500:
-          description: Internal server error
-  /users/{id}/following:
-    get:
-      tags:
-        - Users
-      summary: Get users that a user is following
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: integer
-          description: The ID of the user whose following list to retrieve
-      responses:
-        200:
-          description: A list of users that the user is following
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/User"
-        404:
-          description: User not found
-        500:
-          description: Internal server error
-  /users/{id}/profile:
-    get:
-      tags:
-        - Users
-      summary: Get user profile by ID
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: integer
-          description: The ID of the user to retrieve the profile for
-      responses:
-        200:
-          description: User profile retrieved successfully
-          schema:
-            $ref: "#/definitions/User"
-        404:
-          description: User not found
-        500:
-          description: Internal server error
   # Character route
   /characters/add:
     post:
@@ -449,8 +228,8 @@ paths:
         - Characters
       summary: Clear character chat with character ID
       parameters:
-        - in: path
-          name: id
+        - in: body
+          name: character_id
           required: true
           type: integer
           description: The ID of the character to delete its chat
@@ -459,6 +238,58 @@ paths:
           description: Chat deleted successfully
         404:
           description: Character chat not found
+        500:
+          description: Internal server error
+  /characters/{character_id}/chat:
+    post:
+      tags:
+        - Characters
+      summary: Chat with character
+      parameters:
+        - in: path
+          name: character_id
+          required: true
+          type: integer
+          description: Chat with character by ID
+        - in: body
+          name: string
+          required: true
+          type: string
+          description: A message to start chat
+          schema:
+            properties:
+              content:
+                type: string
+      responses:
+      200:
+        description: Chat created successfully
+      404:
+        description: Character not found
+      500:
+        description: Internal server error
+  /characters/{character_id}/chat/{message_id}/delete:
+    delete:
+      tags:
+        - Characters
+      summary: Delete a message by ID
+      parameters:
+        - in: path
+          name: character_id
+          required: true
+          type: integer
+          description: The ID of the character
+        - in: path
+          name: message_id
+          required: true
+          type: integer
+          description: The ID of the message to delete
+      responses:
+        400:
+          description: Invalid input
+        200:
+          description: Message deleted successfully
+        404:
+          description: Message not found
         500:
           description: Internal server error
 # Define database tables
