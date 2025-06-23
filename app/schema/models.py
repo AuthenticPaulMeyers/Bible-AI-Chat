@@ -1,6 +1,8 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy # pyright: ignore[reportMissingImports]
-
+import jwt 
+from flask import current_app
+from time import time
 # initialise the database
 db = SQLAlchemy()
 
@@ -18,6 +20,17 @@ class Users(db.Model):
     story = db.relationship('Story', backref='user', lazy=True)
     def __repr__(self) -> str:
         return f'Users>>>{self.id}'
+    
+    def get_reset_password_token(self, expires_in=12213600):
+        return jwt.encode({'reset_password': self.id, 'exp': time() + expires_in}, current_app.config['SECRET_KEY'], algorithm='HS256')
+    
+    @staticmethod
+    def verify_reset_password_token(token):
+        try:
+            id = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])['reset_password']
+        except:
+            return
+        return Users.query.get(id)
 
 # Messages table
 class Message(db.Model):

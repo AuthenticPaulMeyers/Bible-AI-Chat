@@ -4,8 +4,9 @@ from ..constants.http_status_codes import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOU
 from ..services.AIgenerateStories import generate_bible_stories
 from flask_jwt_extended import jwt_required, get_jwt_identity # pyright: ignore[reportMissingImports]
 from app import limiter, get_remote_address
+from ..utils.image_uploads import upload_image
 
-chat_bp = Blueprint('character-chat', __name__, url_prefix='/api/v1.0/characters')
+chat_bp = Blueprint('character-chat', __name__, url_prefix='/api/v1.0.0/characters')
 
 # character chat route
 @chat_bp.route('/<int:character_id>/chat', methods=['POST'])
@@ -30,7 +31,7 @@ def chat_with_bible_character(character_id):
     ]
 
     try:
-        user_message = request.json.get('message')
+        user_message = request.json.get('content')
         if not user_message or user_message == '':
             return jsonify({'error': 'Input field should not be empty.'}), HTTP_400_BAD_REQUEST
 
@@ -97,15 +98,23 @@ def delete_chat(character_id):
 @chat_bp.route('/add', methods=['POST'])
 @jwt_required()
 def add_bible_character():
-    name = request.json.get('name')
-    description = request.json.get('description')
+    name = request.form.get('name').capitalize().strip()
+    description = request.form.get('description')
+    file = request.files.get('image')
 
     if not name or name == '' or not description or description == '':
         return jsonify({'error': 'Required fields should not be empty.'})
     
+    if not file:
+        return jsonify({'error': 'No file provided.'}), HTTP_400_BAD_REQUEST
+        
+    file_url = upload_image(file)
+    if not file_url:
+        return jsonify({'error': 'Invalid file type.'}), HTTP_400_BAD_REQUEST
+
     if request.method == 'POST':
         try:
-            db.session.add(Character(name=name, description=description))
+            db.session.add(Character(name=name, description=description, profile_image_url=file_url))
             db.session.commit()
             return jsonify({'character':{
                 'name': name,
@@ -131,9 +140,9 @@ def delete_bible_character(character_id):
 
 # Search character by name
 @chat_bp.route('/search', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def search_character():
-    get_name = request.json.get('name')
+    get_name = request.args.get('name').capitalize().strip()
 
     if not get_name or get_name == '':
         return jsonify({'error': 'Missing required search query.'}), HTTP_400_BAD_REQUEST

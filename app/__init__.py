@@ -8,6 +8,7 @@ from .constants.http_status_codes import HTTP_429_TOO_MANY_REQUESTS, HTTP_404_NO
 from flask_limiter import Limiter # pyright: ignore[reportMissingImports]
 from flask_limiter.util import get_remote_address # pyright: ignore[reportMissingImports]
 from flask_swagger_ui import get_swaggerui_blueprint # pyright: ignore[reportMissingImports]
+from flask_mail import Mail
 
 load_dotenv()
 
@@ -17,6 +18,8 @@ limiter = Limiter(
     storage_uri="memory://",
     strategy="moving-window",
 )  
+
+mail = Mail()
 
 # swagger ui setup
 SWAGGER_URL = '/docs'
@@ -38,7 +41,14 @@ def create_app(test_config=None):
             SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URL'),
             JWT_SECRET_KEY=os.getenv('JWT_SECRET_KEY'),
             API_KEY=os.getenv('API_KEY'),
-            SQLALCHEMY_TRACK_MODIFICATIONS=False
+            SQLALCHEMY_TRACK_MODIFICATIONS=False,
+            # Flask-Mail configuration
+            MAIL_SERVER=os.getenv('MAIL_SERVER'),
+            MAIL_PORT=os.getenv('MAIL_PORT'),
+            MAIL_USERNAME=os.getenv('MAIL_USERNAME'),
+            MAIL_PASSWORD=os.getenv('MAIL_PASSWORD'),
+            MAIL_USE_TLS=os.getenv('MAIL_USE_TLS'),
+            MAIL_DEFAULT_SENDER=os.getenv('MAIL_DEFAULT_SENDER')
         )
     else:
         app.config.from_mapping(test_config)
@@ -53,6 +63,8 @@ def create_app(test_config=None):
     Migrate(app, db)
     # initialise the limiter here
     limiter.init_app(app)
+    # initialise mail
+    mail.init_app(app)
 
     # initialise swagger ui blueprint
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
@@ -69,7 +81,6 @@ def create_app(test_config=None):
     
     # configure blueprints here
     app.register_blueprint(auth)
-    app.register_blueprint(story_bp)
     app.register_blueprint(chat_bp)
     
     # exception handling | catch runtime errors here
