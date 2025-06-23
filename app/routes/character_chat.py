@@ -5,7 +5,7 @@ from ..services.AIgenerateStories import generate_bible_stories
 from flask_jwt_extended import jwt_required, get_jwt_identity # pyright: ignore[reportMissingImports]
 from app import limiter, get_remote_address
 
-chat_bp = Blueprint('character-chat', __name__, url_prefix='/api/characters')
+chat_bp = Blueprint('character-chat', __name__, url_prefix='/api/v1.0/characters')
 
 # character chat route
 @chat_bp.route('/<int:character_id>/chat', methods=['POST'])

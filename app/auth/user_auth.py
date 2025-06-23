@@ -7,7 +7,7 @@ from ..constants.http_status_codes import HTTP_400_BAD_REQUEST, HTTP_409_CONFLIC
 import validators
 
 # create a blueprint for this route
-auth = Blueprint('auth', __name__, static_url_path='static/', url_prefix='/api/auth')
+auth = Blueprint('auth', __name__, static_url_path='static/', url_prefix='/api/v1.0/auth')
 
 # register route
 @auth.route('/register', methods=['POST', 'GET'])

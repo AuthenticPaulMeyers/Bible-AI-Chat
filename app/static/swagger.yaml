@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  title: Bootopia API
+  title: Biblia AI Chat API
   description: A social network for reading and sharing books.
   version: "1.0"
 basePath: /api/v1.0
@@ -11,27 +11,9 @@ tags:
     description: User Authentication
   - name: Users
     description: User Management
-  - name: Books
-    description: CRUD for books
-  - name: Posts
-    description: CRUD for posts
-  - name: Comments
-    description: CRUD for comments on posts
-  - name: Likes
-    description: CRUD for likes on posts
-  - name: Summary
-    description: CRUD for book summaries
-  - name: Quotes
-    description: CRUD for quotes from books
-  - name: Tags
-    description: CRUD for tags associated with books
-  - name: Recommendations
-    description: User recommendations for books
-  - name: Notifications
-    description: User notifications for activities
-  - name: Bookmarks
-    description: User bookmarks for books
-  
+  - name: Characters
+    description: Chat with characters
+
 securityDefinitions:
   Bearer:
     type: apiKey
@@ -398,28 +380,6 @@ paths:
             $ref: "#/definitions/User"
         404:
           description: User not found
-        500:
-          description: Internal server error
-  
-    get:
-      tags:
-        - Posts
-      summary: Get all posts by a specific user
-      parameters:
-        - in: path
-          name: user_id
-          required: true
-          type: integer
-          description: The ID of the user whose posts to retrieve
-      responses:
-        200:
-          description: A list of posts by the user
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/Post"
-        404:
-          description: User not found or no posts available
         500:
           description: Internal server error
   # Character route
