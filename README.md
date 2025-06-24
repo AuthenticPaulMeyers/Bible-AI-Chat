@@ -1,7 +1,7 @@
 # Biblia AI Chat API
 ## A REST API to chat with Bible characters using AI
 
-- This API uses `DeepSeek r-1` model through `openrouter` which allows access to `300+ LLMs` in one platform.
+- This API uses `DeepSeek-r-1(free)` model through `openrouter` which allows access to `300+ LLMs` in one platform.
 
 ### Idea and Concept
 - I thought about doing this project through my day to day interactions with kids. Kids ask alot of questions and they are always curious to know and learn. My relatives always ask me to tell them stories from the Bible about how God worked with different people in the Bible and what lesson can they take from it. I enjoy every minute narrating these stories because i feel like there is no other stories greater written than the ones in the Bible (personal opinion). <br>
