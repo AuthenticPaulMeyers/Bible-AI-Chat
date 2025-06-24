@@ -155,7 +155,8 @@ def search_character():
             return jsonify({
                 'results':{
                     'id': query.id,
-                    'name': query.name
+                    'name': query.name,
+                    'profile_picture': query.profile_image_url
                 }
             }), HTTP_200_OK
         # catch any other unexpected error
