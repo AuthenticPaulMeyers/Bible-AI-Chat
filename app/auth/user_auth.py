@@ -83,7 +83,7 @@ def login():
             if check_hashed_password:
                 # create jwt access tokens and refresh token to authenticate and authorise users
                 refresh=create_refresh_token(identity=str(user.id))
-                access=create_access_token(identity=str(user.id))
+                access=create_access_token(identity={'id': user.id, 'email': user.email, 'username': user.username, 'profile_pic_url': user.profile_pic_url})
 
                 return jsonify({
                     'user':{
