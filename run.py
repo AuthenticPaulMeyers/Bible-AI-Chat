@@ -4,5 +4,6 @@ from flask_migrate import Migrate
 app = create_app()
 migrate = Migrate(app, db)
 
-with app.app_context():
-    app.run(debug=True)
+if __name__ == "__main__":
+    with app.app_context():
+        app.run(debug=True)
