@@ -9,6 +9,7 @@ from flask_limiter import Limiter # pyright: ignore[reportMissingImports]
 from flask_limiter.util import get_remote_address # pyright: ignore[reportMissingImports]
 from flask_swagger_ui import get_swaggerui_blueprint # pyright: ignore[reportMissingImports]
 from flask_mail import Mail
+from flask_cors import CORS
 
 load_dotenv()
 
@@ -65,6 +66,8 @@ def create_app(test_config=None):
     limiter.init_app(app)
     # initialise mail
     mail.init_app(app)
+    # initialise cors
+    CORS(app)
 
     # initialise swagger ui blueprint
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
