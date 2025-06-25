@@ -60,6 +60,7 @@ class Character(db.Model):
     name = db.Column(db.String(255), nullable=False, unique=True)
     description = db.Column(db.Text, nullable=False)
     profile_image_url = db.Column(db.Text, nullable=True)
+    book = db.Column(db.String(30), nullable=True)
 
 
     def __repr__(self) -> str:
