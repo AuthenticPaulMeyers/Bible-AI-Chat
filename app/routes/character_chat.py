@@ -93,17 +93,25 @@ def delete_chat(character_id):
                 return {'message': 'Cleared chat successfully.'}, HTTP_200_OK
         except Exception as e:
             print(f'error: {e}')
-           
+
+
 # Add character
 @chat_bp.route('/add', methods=['POST'])
 @jwt_required()
 def add_bible_character():
     name = request.form.get('name').capitalize().strip()
     description = request.form.get('description')
+    char_book = request.form.get('book').strip().title()
     file = request.files.get('image')
 
-    if not name or name == '' or not description or description == '':
-        return jsonify({'error': 'Required fields should not be empty.'})
+    BOOKS = ['New Testament', 'Old Testament']
+
+    if not name or name == '' or not description or description == '' or not char_book or char_book == '':
+        return jsonify({'error': 'Required fields should not be empty.'}), HTTP_400_BAD_REQUEST
+    
+    for book in BOOKS:
+        if char_book != book:
+            return jsonify({'error': 'Invalid book.'}), HTTP_400_BAD_REQUEST
     
     if not file:
         return jsonify({'error': 'No file provided.'}), HTTP_400_BAD_REQUEST
@@ -114,11 +122,12 @@ def add_bible_character():
 
     if request.method == 'POST':
         try:
-            db.session.add(Character(name=name, description=description, profile_image_url=file_url))
+            db.session.add(Character(name=name, description=description, profile_image_url=file_url, book=char_book))
             db.session.commit()
             return jsonify({'character':{
                 'name': name,
-                'description': description
+                'description': description,
+                'character_book': char_book
             }}), HTTP_201_CREATED
         
         except Exception as e:
@@ -156,7 +165,8 @@ def search_character():
                 'results':{
                     'id': query.id,
                     'name': query.name,
-                    'profile_picture': query.profile_image_url
+                    'profile_picture': query.profile_image_url,
+                    'character_book': query.book
                 }
             }), HTTP_200_OK
         # catch any other unexpected error

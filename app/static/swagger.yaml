@@ -327,6 +327,7 @@ definitions:
       - name
       - description
       - profile_image_url
+      - book
     properties:
       name:
         type: string
