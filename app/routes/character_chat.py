@@ -98,14 +98,11 @@ def delete_chat(character_id):
 
 # Display all characters with filter
 @chat_bp.route('/get-all', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_all_characters():
 
     filter_query = request.args.get('filter')
     filter_query = filter_query.title().strip() if filter_query else None
-
-    if filter_query not in BOOKS:
-        return jsonify({'error': 'Invalid filter'}), HTTP_400_BAD_REQUEST
 
     query = Character.query
 
