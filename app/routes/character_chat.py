@@ -8,6 +8,8 @@ from ..utils.image_uploads import upload_image
 
 chat_bp = Blueprint('character-chat', __name__, url_prefix='/api/v1.0.0/characters')
 
+BOOKS = ['New Testament', 'Old Testament']
+
 # character chat route
 @chat_bp.route('/<int:character_id>/chat', methods=['POST'])
 @limiter.limit("150 per day", key_func=get_remote_address)
@@ -94,6 +96,39 @@ def delete_chat(character_id):
         except Exception as e:
             print(f'error: {e}')
 
+# Display all characters with filter
+@chat_bp.route('/get-all', methods=['GET'])
+# @jwt_required()
+def get_all_characters():
+
+    filter_query = request.args.get('filter').title().strip()
+
+    if filter_query not in BOOKS:
+        return jsonify({'error': 'Invalid filter'}), HTTP_400_BAD_REQUEST
+
+    query = Character.query
+
+    if filter_query in BOOKS:
+        query = query.filter_by(book = filter_query)
+    
+    results = query.all()
+
+    print(filter_query)
+
+    if not results:
+        return jsonify({'error': 'Character not found.'}), HTTP_404_NOT_FOUND
+
+    characters = []
+
+    for character in results:
+        characters.append({
+            'id': character.id,
+            'name': character.name,
+            'description': character.description,
+            'profile_image_url': character.profile_image_url,
+            'book': character.book
+        })
+    return {'characters': characters}, HTTP_200_OK
 
 # Add character
 @chat_bp.route('/add', methods=['POST'])
@@ -104,14 +139,11 @@ def add_bible_character():
     char_book = request.form.get('book').strip().title()
     file = request.files.get('image')
 
-    BOOKS = ['New Testament', 'Old Testament']
-
     if not name or name == '' or not description or description == '' or not char_book or char_book == '':
         return jsonify({'error': 'Required fields should not be empty.'}), HTTP_400_BAD_REQUEST
     
-    for book in BOOKS:
-        if char_book != book:
-            return jsonify({'error': 'Invalid book.'}), HTTP_400_BAD_REQUEST
+    if char_book not in BOOKS:
+        return jsonify({'error': 'Invalid book.'}), HTTP_400_BAD_REQUEST
     
     if not file:
         return jsonify({'error': 'No file provided.'}), HTTP_400_BAD_REQUEST

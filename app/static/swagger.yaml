@@ -182,6 +182,30 @@ paths:
         500:
           description: Internal server error
   # Character route
+  /characters/get-all:
+    get:
+      tags: 
+        - Characters
+      summary: Get all characters with filters
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            type: string
+            enum: ["Old Testament", "New Testament"]
+          required: false
+          description: Filter query
+      responses:
+        200:
+          description: All characters
+          schema: 
+            type: array
+            items:
+              $ref: "#/definitions/Character"
+        400:
+          description: Not found
+        500:
+          description: Internal server error
   /characters/add:
     post:
       tags:
