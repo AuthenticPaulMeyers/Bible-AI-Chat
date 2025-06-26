@@ -67,7 +67,7 @@ def create_app(test_config=None):
     # initialise mail
     mail.init_app(app)
     # initialise cors
-    CORS(app)
+    CORS(app, origins=["http://127.0.0.1:5500"], supports_credentials=True)
 
     # initialise swagger ui blueprint
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
