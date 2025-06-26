@@ -102,7 +102,8 @@ def delete_chat(character_id):
 def get_all_characters():
 
     filter_query = request.args.get('filter')
-    filter_query = filter_query.title().strip() if filter_query else None
+    if filter_query:
+        filter_query = filter_query if filter_query else None
 
     query = Character.query
 
@@ -154,10 +155,13 @@ def add_bible_character():
         try:
             db.session.add(Character(name=name, description=description, profile_image_url=file_url, book=char_book))
             db.session.commit()
-            return jsonify({'character':{
+            return jsonify({
+                'message': 'Character created successfully.',
+                'character':{
                 'name': name,
                 'description': description,
-                'character_book': char_book
+                'book': char_book,
+                'profile_pic_url': file_url
             }}), HTTP_201_CREATED
         
         except Exception as e:
@@ -179,7 +183,7 @@ def delete_bible_character(character_id):
 
 # Search character by name
 @chat_bp.route('/search', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def search_character():
     get_name = request.args.get('name').capitalize().strip()
 

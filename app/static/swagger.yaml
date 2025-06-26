@@ -225,6 +225,11 @@ paths:
           name: description
           type: string
           description: Character description
+          required: true
+        - in: formData
+          name: book
+          type: string
+          description: The book the character is from (New Testament or Old Testament)
           required: true  
       responses:
         201:
