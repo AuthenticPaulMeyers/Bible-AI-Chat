@@ -131,7 +131,7 @@ def get_all_characters():
 
 # Add character
 @chat_bp.route('/add', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def add_bible_character():
     name = request.form.get('name').capitalize().strip()
     description = request.form.get('description')
@@ -158,11 +158,12 @@ def add_bible_character():
             return jsonify({
                 'message': 'Character created successfully.',
                 'character':{
-                'name': name,
-                'description': description,
-                'book': char_book,
-                'profile_pic_url': file_url
-            }}), HTTP_201_CREATED
+                    'name': name,
+                    'description': description,
+                    'book': char_book,
+                    'profile_pic_url': file_url
+                }
+            }), HTTP_201_CREATED
         
         except Exception as e:
             print(f'error: {e}')
