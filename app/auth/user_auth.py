@@ -2,7 +2,7 @@ from flask import request, Blueprint, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..schema.models import db, Users
 from flask_jwt_extended import jwt_required, create_refresh_token, get_jwt_identity, create_access_token
-from ..utils.image_uploads import upload_image
+from ..utils.image_uploads import upload_image_to_supabase
 from ..constants.http_status_codes import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT, HTTP_200_OK, HTTP_201_CREATED, HTTP_500_INTERNAL_SERVER_ERROR
 import validators
 from app import limiter, get_remote_address
@@ -50,7 +50,7 @@ def register():
         if not file:
             return jsonify({'error': 'No file provided.'}), HTTP_400_BAD_REQUEST
         
-        file_url = upload_image(file)
+        file_url = upload_image_to_supabase(file)
         if not file_url:
             return jsonify({'error': 'Invalid file type.'}), HTTP_400_BAD_REQUEST
 

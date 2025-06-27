@@ -4,7 +4,7 @@ from ..constants.http_status_codes import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOU
 from ..services.AIgenerateStories import generate_bible_stories
 from flask_jwt_extended import jwt_required, get_jwt_identity # pyright: ignore[reportMissingImports]
 from app import limiter, get_remote_address
-from ..utils.image_uploads import upload_image
+from ..utils.image_uploads import upload_image_to_supabase
 
 chat_bp = Blueprint('character-chat', __name__, url_prefix='/api/v1.0.0/characters')
 
@@ -131,7 +131,7 @@ def get_all_characters():
 
 # Add character
 @chat_bp.route('/add', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def add_bible_character():
     name = request.form.get('name').capitalize().strip()
     description = request.form.get('description')
@@ -147,7 +147,7 @@ def add_bible_character():
     if not file:
         return jsonify({'error': 'No file provided.'}), HTTP_400_BAD_REQUEST
         
-    file_url = upload_image(file)
+    file_url = upload_image_to_supabase(file)
     if not file_url:
         return jsonify({'error': 'Invalid file type.'}), HTTP_400_BAD_REQUEST
 
