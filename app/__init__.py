@@ -1,17 +1,17 @@
-from flask import Flask, jsonify, send_from_directory # pyright: ignore[reportMissingImports]
+from flask import Flask, jsonify, send_from_directory 
 import os
 from .schema.models import db
-from flask_jwt_extended import JWTManager # pyright: ignore[reportMissingImports]
-from dotenv import load_dotenv # pyright: ignore[reportMissingImports]
-from flask_migrate import Migrate # pyright: ignore[reportMissingImports]
+from flask_jwt_extended import JWTManager 
+from dotenv import load_dotenv 
+from flask_migrate import Migrate 
 from .constants.http_status_codes import HTTP_429_TOO_MANY_REQUESTS, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_503_SERVICE_UNAVAILABLE
-from flask_limiter import Limiter # pyright: ignore[reportMissingImports]
-from flask_limiter.util import get_remote_address # pyright: ignore[reportMissingImports]
-from flask_swagger_ui import get_swaggerui_blueprint # pyright: ignore[reportMissingImports]
+from flask_limiter import Limiter 
+from flask_limiter.util import get_remote_address 
+from flask_swagger_ui import get_swaggerui_blueprint 
 from flask_mail import Mail
 from flask_cors import CORS
 
-load_dotenv()
+load_dotenv(override=True)
 
 limiter = Limiter(
     get_remote_address,
@@ -40,8 +40,8 @@ def create_app(test_config=None):
         app.config.from_mapping(
             SECRET_KEY=os.environ.get('SECRET_KEY'),
             SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URI'),
-            JWT_SECRET_KEY=os.getenv('JWT_SECRET_KEY'),
-            API_KEY=os.getenv('API_KEY'),
+            JWT_SECRET_KEY=os.environ.get('JWT_SECRET_KEY'),
+            API_KEY=os.environ.get('API_KEY'),
             SQLALCHEMY_TRACK_MODIFICATIONS=False,
             # Flask-Mail configuration
             MAIL_SERVER=os.getenv('MAIL_SERVER'),
@@ -57,8 +57,6 @@ def create_app(test_config=None):
     # initialise the database here
     db.app=app
     db.init_app(app)
-
-    print(os.getenv('DATABASE_URI'))
     
     # initialise jwt here
     JWTManager(app)
