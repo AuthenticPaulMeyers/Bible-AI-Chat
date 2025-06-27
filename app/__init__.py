@@ -39,7 +39,7 @@ def create_app(test_config=None):
     if test_config is None:
         app.config.from_mapping(
             SECRET_KEY=os.environ.get('SECRET_KEY'),
-            SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URI'),
+            SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI'),
             JWT_SECRET_KEY=os.environ.get('JWT_SECRET_KEY'),
             API_KEY=os.environ.get('API_KEY'),
             SQLALCHEMY_TRACK_MODIFICATIONS=False,
