@@ -4,8 +4,9 @@ info:
   description: AI Chat API to chat with Bible characters.
   version: "1.0"
 basePath: /api/v1.0.0
+host: bible-ai-rnlc.onrender.com
 schemes:
-  - http
+  - https
 tags:
   - name: Auth
     description: User Authentication
