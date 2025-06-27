@@ -47,7 +47,7 @@ def chat_with_bible_character(character_id):
         db.session.add(Message(sender_id=user_id, role='assistant', content=reply, character_id=character_id))
         db.session.commit()
 
-        conversation_history = Message.query.filter_by(sender_id=user_id).order_by(Message.created_at).all()
+        conversation_history = Message.query.filter_by(sender_id=user_id, character_id=character_id).order_by(Message.created_at).all()
 
         conversation_history_dicts = [msg.to_dict() for msg in conversation_history]
 
