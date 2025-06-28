@@ -1,7 +1,7 @@
 # Biblia AI Chat API
 ## A REST API to chat with Bible characters using AI
 
-Endpoints [Documentation](https://api-bible-ai.onrender.com/docs)
+Endpoints [Documentation](https://bible-ai-rnlc.onrender.com/docs/)
 
 - This API uses `DeepSeek-r-1(free)` model through `openrouter` which allows access to `300+ LLMs` in one platform.
 
