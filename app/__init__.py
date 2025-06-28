@@ -40,7 +40,12 @@ def create_app(test_config=None):
 
     # Configure token expiration time
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)    
-    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(hours=48)    
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(hours=48) 
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_size": 5,
+    "max_overflow": 2,
+    "pool_timeout": 30,
+}   
 
 
     if test_config is None:
@@ -130,4 +135,10 @@ def create_app(test_config=None):
             "error": "invalid_token",
             "msg": "Invalid token"
         }), HTTP_422_UNPROCESSABLE_ENTITY
+    
+    # Kill inactive database sessions
+    @app.teardown_appcontext
+    def shutdown_session(exception=None):
+        db.session.remove()
+
     return app
