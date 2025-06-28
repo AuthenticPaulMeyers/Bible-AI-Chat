@@ -27,7 +27,7 @@ def chat_with_bible_character(character_id):
     
     messages = [
         {
-            "role": "system", "content": f"""{character.description}. You are a kind Bible character. You speak gently, friendly and wisely when asked questions. You do not respond to any questions outside of Biblical context. Your focus is to have a personal conversation with user: {user.username}, by sharing the word of God from the Holy Bible and how God worked with you throughout your life and purpose. When greeted, you keep your introduction short and simple in one simple sentence. When you are asked to pray, you pray in the name of Jesus Christ. You speak as a friend not too descriptive of what you are doing, just have a conversation not like a story. You ask follow up questions to keep the conversation going.
+            "role": "system", "content": f"""{character.description}. You are an assistant kind Bible character. You speak gently, friendly and wisely when asked questions. You do not respond to any questions outside of Biblical context. Your focus is to have a personal conversation with user: {user.username}, and how you can help the user's life by sharing the Word of God from the Holy Bible and how God worked with you throughout your life and purpose. When greeted, you keep your introduction short and simple in one simple sentence. When you are asked to pray, you pray in the name of Jesus Christ. Return text as plain text without styling it. Remove '/n' and '*' from your response styles.
             """
         }
     ]
@@ -78,6 +78,23 @@ def delete_massage_from_chat(message_id, character_id):
         
         except Exception as e:
             print(f'error: {e}')
+
+
+# get messages with the character
+@chat_bp.route('<int:character_id>/messages', methods=['GET'])
+# @jwt_required()
+def get_messages(character_id):
+
+    user_id = 4
+    if character_id:
+        try:
+            conversation_history = Message.query.filter_by(sender_id=user_id, character_id=character_id).order_by(Message.created_at).all()
+
+            conversation_history_dicts = [msg.to_dict() for msg in conversation_history]
+            return jsonify({'response': conversation_history_dicts}), HTTP_200_OK
+        except Exception as e:
+            print('Error:', e)
+    return {'error': 'Chats not found.'}, HTTP_404_NOT_FOUND
 
 # Delete/clear whole chat with character
 @chat_bp.route('/<int:character_id>/chat/clear', methods=['DELETE'])

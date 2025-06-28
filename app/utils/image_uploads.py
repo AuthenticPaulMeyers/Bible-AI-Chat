@@ -13,8 +13,6 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 SUPABASE_URL=os.getenv('SUPABASE_URL')
 SUPABASE_KEY=os.getenv('SUPABASE_KEY')
 
-print(SUPABASE_URL)
-
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Check allowed file types
@@ -39,9 +37,7 @@ def upload_image_to_supabase(file):
             file_bytes,
             {'content-type': file.content_type}
         )
-        print("Type of res:", type(res))
-        print("Attr of res:", dir(res))
-        print("Contents of res:", res)
+
         image_url = f"{SUPABASE_URL}/storage/v1/object/public/{res.fullPath}"
 
         return image_url
