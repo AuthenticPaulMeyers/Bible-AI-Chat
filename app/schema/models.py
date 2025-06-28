@@ -52,7 +52,7 @@ class Message(db.Model):
         return {
             "role": self.role, 
             "content": self.content,
-            "created_at": self.created_at,
+            "created_at": self.created_at.isoformat() + 'Z' if self.created_at else None,
             "updated_at": self.updated_at
         }
 
@@ -80,5 +80,6 @@ class Story(db.Model):
     def to_dict(self):
         return {
             "role": self.role,
-            "content": self.content
+            "content": self.content,
+            "title": self.title
         }
