@@ -21,7 +21,7 @@ class Users(db.Model):
     def __repr__(self) -> str:
         return f'Users>>>{self.id}'
     
-    def get_reset_password_token(self, expires_in=12213600):
+    def get_reset_password_token(self, expires_in=3600):
         return jwt.encode({'reset_password': self.id, 'exp': time() + expires_in}, current_app.config['SECRET_KEY'], algorithm='HS256')
     
     @staticmethod
@@ -51,7 +51,9 @@ class Message(db.Model):
     def to_dict(self):
         return {
             "role": self.role, 
-            "content": self.content
+            "content": self.content,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
         }
 
 class Character(db.Model):
@@ -61,7 +63,6 @@ class Character(db.Model):
     description = db.Column(db.Text, nullable=False)
     profile_image_url = db.Column(db.Text, nullable=True)
     book = db.Column(db.String(30), nullable=True)
-
 
     def __repr__(self) -> str:
         return f'Character>>>{self.id}'
