@@ -4,12 +4,14 @@ from .schema.models import db
 from flask_jwt_extended import JWTManager 
 from dotenv import load_dotenv 
 from flask_migrate import Migrate 
-from .constants.http_status_codes import HTTP_429_TOO_MANY_REQUESTS, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_503_SERVICE_UNAVAILABLE
+from .constants.http_status_codes import HTTP_429_TOO_MANY_REQUESTS, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_503_SERVICE_UNAVAILABLE, HTTP_401_UNAUTHORIZED, HTTP_422_UNPROCESSABLE_ENTITY
 from flask_limiter import Limiter 
 from flask_limiter.util import get_remote_address 
 from flask_swagger_ui import get_swaggerui_blueprint 
 from flask_mail import Mail
 from flask_cors import CORS
+from datetime import timedelta
+from flask_jwt_extended.exceptions import ExpiredSignatureError
 
 load_dotenv(override=True)
 
@@ -21,6 +23,7 @@ limiter = Limiter(
 )  
 
 mail = Mail()
+jwt = JWTManager()
 
 # swagger ui setup
 SWAGGER_URL = '/docs'
@@ -35,6 +38,11 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 # initiate app
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
+
+    # Configure token expiration time
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)    
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(hours=48)    
+
 
     if test_config is None:
         app.config.from_mapping(
@@ -59,7 +67,7 @@ def create_app(test_config=None):
     db.init_app(app)
     
     # initialise jwt here
-    JWTManager(app)
+    jwt.init_app(app)
     # initialise migrations
     Migrate(app, db)
     # initialise the limiter here
@@ -102,6 +110,25 @@ def create_app(test_config=None):
     @app.errorhandler(HTTP_429_TOO_MANY_REQUESTS)
     def handle_too_many_requests(error):
         return jsonify({'error': "You have reached your limit for the day. Please try again after 24 hours."}), HTTP_429_TOO_MANY_REQUESTS
+    
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({
+            "error": "token_expired",
+            "msg": "Invalid token"
+        }), HTTP_401_UNAUTHORIZED
 
-
+    @jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return jsonify({
+            "error": "authorization_required",
+            "msg": "Invalid token"
+        }), HTTP_401_UNAUTHORIZED
+    
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return jsonify({
+            "error": "invalid_token",
+            "msg": "Invalid token"
+        }), HTTP_422_UNPROCESSABLE_ENTITY
     return app

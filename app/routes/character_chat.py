@@ -79,13 +79,12 @@ def delete_massage_from_chat(message_id, character_id):
         except Exception as e:
             print(f'error: {e}')
 
-
 # get messages with the character
 @chat_bp.route('<int:character_id>/messages', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_messages(character_id):
 
-    user_id = 4
+    user_id = get_jwt_identity()
     if character_id:
         try:
             conversation_history = Message.query.filter_by(sender_id=user_id, character_id=character_id).order_by(Message.created_at).all()
