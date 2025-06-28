@@ -11,7 +11,6 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from flask_mail import Mail
 from flask_cors import CORS
 from datetime import timedelta
-from flask_jwt_extended.exceptions import ExpiredSignatureError
 
 load_dotenv(override=True)
 
