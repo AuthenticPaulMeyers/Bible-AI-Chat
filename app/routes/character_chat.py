@@ -1,8 +1,8 @@
-from flask import request, Blueprint, jsonify # pyright: ignore[reportMissingImports]
+from flask import request, Blueprint, jsonify
 from ..schema.models import db, Users, Character, Message
 from ..constants.http_status_codes import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_201_CREATED
 from ..services.AIgenerateStories import generate_bible_stories
-from flask_jwt_extended import jwt_required, get_jwt_identity # pyright: ignore[reportMissingImports]
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import limiter, get_remote_address
 from ..utils.image_uploads import upload_image_to_supabase
 
@@ -27,7 +27,7 @@ def chat_with_bible_character(character_id):
     
     messages = [
         {
-            "role": "system", "content": f"""{character.description}. You are an assistant kind Bible character. You speak wisely with the Knowledge of God when asked questions. You do not respond to any questions outside of Biblical context. Your focus is to have a personal conversation with user: {user.username}, and how you can help the user's life by sharing the Word of God from the Holy Bible and how God worked with you throughout your life and purpose. When greeted, you keep your introduction short and simple in one simple sentence. When you are asked to pray, you pray in the name of Jesus Christ.
+            "role": "system", "content": f"""{character.description}. You are an assistant kind Bible character. You speak wisely with the Knowledge of God when asked questions. You do not respond to any questions outside of Biblical context. Your focus is to have a personal conversation with user: {user.username}, and how you can help the user's life by sharing the Word of God from the Holy Bible and how God worked with you throughout your life and purpose. When greeted, you keep your introduction short and simple in one simple sentence. When you are asked to pray, you pray in the name of Jesus Christ. You ask friendly suggested topical questions to keep the conversation going.
             """
         }
     ]
@@ -113,7 +113,7 @@ def delete_chat(character_id):
             print(f'error: {e}')
 
 # Display all characters with filter
-@chat_bp.route('/get-all', methods=['GET'])
+@chat_bp.route('/get-all', methods=['GET', 'OPTIONS'])
 @jwt_required()
 def get_all_characters():
 
@@ -121,6 +121,9 @@ def get_all_characters():
     if filter_query:
         filter_query = filter_query if filter_query else None
 
+    if request.method == 'OPTIONS':
+        return '', HTTP_200_OK
+    
     query = Character.query
 
     if filter_query in BOOKS:
