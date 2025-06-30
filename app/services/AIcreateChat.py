@@ -31,6 +31,7 @@ def generate_bible_stories(prompt, conversation_history):
             temperature=0.7,
             stream=True
         )
+        # Chunk ai responses
         full_response = ""
         for chunk in completion:
             if chunk.choices[0].delta.content:
