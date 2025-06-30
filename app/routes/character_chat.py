@@ -45,7 +45,7 @@ def chat_with_bible_character(character_id):
 
         reply = generate_bible_stories(messages)
 
-        reply = reply.replace("*", "*️⃣")
+        reply = reply.replace("*", "😊")
 
         db.session.add(Message(sender_id=user_id, role='assistant', content=reply, character_id=character_id))
         db.session.commit()
