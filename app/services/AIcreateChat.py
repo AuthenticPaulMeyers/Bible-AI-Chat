@@ -11,6 +11,7 @@ def generate_bible_stories(prompt, conversation_history):
     api_key=os.getenv('API_KEY')
     )
 
+    # Add user response to the conversation history
     conversation_history.append(
         {
             "role": "user",
@@ -28,9 +29,11 @@ def generate_bible_stories(prompt, conversation_history):
         model="deepseek/deepseek-r1-0528:free",
         messages=conversation_history,
         temperature=0.7,
+        stream=True
         )
         model_response = completion.choices[0].message.content
 
+        # Add AI response to the conversation history
         conversation_history.append({"role": "assistant", "content": model_response})
 
         return model_response, conversation_history
