@@ -26,17 +26,20 @@ def generate_bible_stories(prompt, conversation_history):
 
     try:
         completion = client.chat.completions.create(
-        model="deepseek/deepseek-r1-0528:free",
-        messages=conversation_history,
-        temperature=0.7,
-        stream=True
+            model="deepseek/deepseek-r1-0528:free",
+            messages=conversation_history,
+            temperature=0.7,
+            stream=True
         )
-        model_response = completion.choices[0].message.content
+        full_response = ""
+        for chunk in completion:
+            if chunk.choices[0].delta.content:
+                full_response += chunk.choices[0].delta.content
 
         # Add AI response to the conversation history
-        conversation_history.append({"role": "assistant", "content": model_response})
+        conversation_history.append({"role": "assistant", "content": full_response})
 
-        return model_response, conversation_history
+        return full_response, conversation_history
 
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
