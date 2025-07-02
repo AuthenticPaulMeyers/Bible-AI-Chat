@@ -34,9 +34,20 @@ swaggerui_blueprint = get_swaggerui_blueprint(
     config={'app_name': "AI Chat API with YAML"}
 )
 
+cors = CORS()
+
 # initiate app
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
+    # configure CORS
+    cors.init_app(app, supports_credentials=True, resources={
+    r"/*": {
+        "origins": ["https://biblia-chat-lime.vercel.app"],
+        "methods": ["GET", "POST", "OPTIONS", "DELETE"],
+        "allow_headers": ["Content-Type", "Authorization"]
+        }
+    })
+
 
     # Configure token expiration time
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)    
@@ -79,7 +90,6 @@ def create_app(test_config=None):
     # initialise mail
     mail.init_app(app)
     # initialise cors
-    CORS(app)
 
     # initialise swagger ui blueprint
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
