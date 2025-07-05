@@ -53,9 +53,10 @@ def create_app(test_config=None):
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)    
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(hours=48) 
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    "pool_size": 5,
-    "max_overflow": 2,
+    "pool_size": 10,
+    "max_overflow": 20,
     "pool_timeout": 30,
+    "pool_recycle": 3600    # Recycle connections after 1 hour
 }   
 
 
