@@ -30,11 +30,11 @@ def register():
             return jsonify({"error": "Name should not contain numbers or symbols"}), HTTP_400_BAD_REQUEST
         
         if password == '' or not password or not username or not email:
-            return jsonify({'error': 'Required fields should not be empty.'})
+            return jsonify({'error': 'Required fields should not be empty.'}), HTTP_400_BAD_REQUEST
         
         # validate the user email
         if not validators.email(email):
-            return jsonify({"error": "Email is not valid"})
+            return jsonify({"error": "Email is not valid"}), HTTP_400_BAD_REQUEST
         
         # check if the user email is not already registered in the database
         if Users.query.filter_by(email=email).first():
