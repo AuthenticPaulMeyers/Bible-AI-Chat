@@ -42,7 +42,7 @@ def create_app(test_config=None):
     # configure CORS
     cors.init_app(app, supports_credentials=True, resources={
     r"/*": {
-        "origins": ["https://biblia-chat-lime.vercel.app"],
+        "origins": ["https://biblia-chat-lime.vercel.app", "http://127.0.0.1:5500"],
         "methods": ["GET", "POST", "OPTIONS", "DELETE"],
         "allow_headers": ["Content-Type", "Authorization"]
         }
