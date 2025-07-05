@@ -26,9 +26,6 @@ def register():
         if len(username) < 3:
             return jsonify({'error': "Name is too short"}), HTTP_400_BAD_REQUEST
         
-        if not username.isalnum() or " " in username:
-            return jsonify({"error": "Name should not contain numbers or symbols"}), HTTP_400_BAD_REQUEST
-        
         if password == '' or not password or not username or not email:
             return jsonify({'error': 'Required fields should not be empty.'}), HTTP_400_BAD_REQUEST
         
