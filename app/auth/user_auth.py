@@ -95,7 +95,7 @@ def login():
                         'id': user.id
                     }
                 }), HTTP_200_OK
-        return jsonify({'error': 'Wrong username or password.'}), HTTP_400_BAD_REQUEST
+        return jsonify({'error': 'Wrong email or password.'}), HTTP_400_BAD_REQUEST
 
 # reset user password request route
 @auth.route('/reset-password-request', methods=['POST'])
