@@ -16,7 +16,7 @@ load_dotenv(override=True)
 
 limiter = Limiter(
     get_remote_address,
-    default_limits=["150 per day", "60 per minute"],
+    default_limits=["150 per hour", "60 per minute"],
     storage_uri="memory://",
     strategy="moving-window",
 )  

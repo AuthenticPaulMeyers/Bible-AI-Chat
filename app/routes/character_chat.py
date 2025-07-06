@@ -12,7 +12,7 @@ BOOKS = ['New Testament', 'Old Testament']
 
 # character chat route
 @chat_bp.route('/<int:character_id>/chat', methods=['POST'])
-@limiter.limit("150 per day", key_func=get_remote_address)
+@limiter.limit("150 per hour", key_func=get_remote_address)
 @jwt_required()
 def chat_with_bible_character(character_id):
     # get character to chat with
