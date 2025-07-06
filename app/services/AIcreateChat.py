@@ -26,7 +26,7 @@ def generate_bible_stories(prompt, conversation_history):
 
     try:
         completion = client.chat.completions.create(
-            model="deepseek/deepseek-r1-0528:free",
+            model="mistralai/mistral-nemo:free",
             messages=conversation_history,
             temperature=0.7,
             stream=True
