@@ -1,7 +1,7 @@
 from flask import request, Blueprint, jsonify
 from ..schema.models import db, Users, Character, Message
 from ..constants.http_status_codes import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_201_CREATED, HTTP_500_INTERNAL_SERVER_ERROR
-from ..services.AIgenerateStories import generate_bible_stories
+from ..services.AIcreateChat import generate_character_chat
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import limiter, get_remote_address
 from ..utils.image_uploads import upload_image_to_supabase
@@ -43,9 +43,7 @@ def chat_with_bible_character(character_id):
         history = Message.query.filter_by(sender_id=user_id).order_by(Message.created_at).all()
         messages += [msg.to_dict() for msg in history]
 
-        reply = generate_bible_stories(messages)
-
-        reply = reply.replace("*", "") # remove asteriks
+        reply, updated_message_history = generate_character_chat(user_message, messages)
 
         # Save assistant reply to the database
         db.session.add(Message(sender_id=user_id, role='assistant', content=reply, character_id=character_id))
@@ -58,7 +56,7 @@ def chat_with_bible_character(character_id):
         return jsonify({'response': conversation_history_dicts}), HTTP_200_OK
     except Exception as e:
         print(f'Error: {e}')
-        return jsonify({'error': 'An error occurred while processing your request.'}), HTTP_500_INTERNAL_SERVER_ERROR
+        return jsonify({'error': 'An error occurred while processing your request.', 'detail': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
     
 # delete messages with the character
 @chat_bp.route('/<int:character_id>/chat/<int:message_id>/delete', methods=['DELETE'])

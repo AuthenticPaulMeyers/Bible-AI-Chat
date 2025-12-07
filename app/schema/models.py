@@ -54,7 +54,6 @@ class Message(db.Model):
             "role": self.role, 
             "content": self.content,
             "created_at": self.created_at.isoformat() + 'Z' if self.created_at else None,
-            "updated_at": self.updated_at
         }
     
 # Bible Characters table

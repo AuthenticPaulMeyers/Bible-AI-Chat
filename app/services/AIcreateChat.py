@@ -4,7 +4,7 @@ from dotenv import load_dotenv # pyright: ignore[reportMissingImports]
 
 load_dotenv(override=True)
 
-def generate_bible_stories(prompt, conversation_history):
+def generate_character_chat(prompt, conversation_history):
     
     client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
@@ -26,7 +26,7 @@ def generate_bible_stories(prompt, conversation_history):
 
     try:
         completion = client.chat.completions.create(
-            model="meta-llama/llama-3.2-11b-vision-instruct:free",
+            model="meta-llama/llama-3.3-70b-instruct:free",
             messages=conversation_history,
             temperature=0.7,
             stream=True
@@ -44,4 +44,4 @@ def generate_bible_stories(prompt, conversation_history):
 
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-        return "An unexpected error occurred. Please try again.", conversation_history
+        return f"An unexpected error occurred. Please try again.... {e}", conversation_history

@@ -55,8 +55,8 @@ def create_app(test_config=None):
     })
 
     # Configure token expiration time
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)    
-    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(hours=48) 
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)    
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(hours=12) 
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         "pool_size": 10,
         "max_overflow": 20,
@@ -108,11 +108,11 @@ def create_app(test_config=None):
     # from .routes.generate_stories import story_bp
     from .routes.character_chat import chat_bp
     
-    # configure blueprints here
+    # configure blueprints
     app.register_blueprint(auth)
     app.register_blueprint(chat_bp)
     
-    # exception handling | catch runtime errors here
+    # exception handling | catch runtime errors
     @app.errorhandler(HTTP_404_NOT_FOUND)
     def handle_file_not_found(error):
         return jsonify({'error': f"{HTTP_404_NOT_FOUND} File not found!"}), HTTP_404_NOT_FOUND
