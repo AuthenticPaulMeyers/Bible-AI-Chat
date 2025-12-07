@@ -4,7 +4,7 @@ app = create_app()
 
 with app.app_context():
     db.create_all()
-    # Run the app
-    app.run(debug=True, port=5500)
+    # # Run the app
+    # app.run(debug=True, port=5500)
     
 
