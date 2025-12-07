@@ -14,6 +14,7 @@ from datetime import timedelta
 
 load_dotenv(override=True)
 
+# rate limiter setup
 limiter = Limiter(
     get_remote_address,
     default_limits=["150 per hour", "60 per minute"],
@@ -21,8 +22,6 @@ limiter = Limiter(
     strategy="moving-window",
 )  
 
-mail = Mail()
-jwt = JWTManager()
 
 # swagger ui setup
 SWAGGER_URL = '/docs'
@@ -34,7 +33,14 @@ swaggerui_blueprint = get_swaggerui_blueprint(
     config={'app_name': "AI Chat API with YAML"}
 )
 
+# mail setup
+mail = Mail()
+# jwt setup
+jwt = JWTManager()
+# configure CORS
 cors = CORS()
+# migrate setup
+migrate = Migrate()
 
 # initiate app
 def create_app(test_config=None):
@@ -48,18 +54,16 @@ def create_app(test_config=None):
         }
     })
 
-
     # Configure token expiration time
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)    
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(hours=48) 
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    "pool_size": 10,
-    "max_overflow": 20,
-    "pool_timeout": 30,
-    "pool_recycle": 3600    # Recycle connections after 1 hour
-}   
-
-
+        "pool_size": 10,
+        "max_overflow": 20,
+        "pool_timeout": 30,
+        "pool_recycle": 3600    # Recycle connections after 1 hour
+    }   
+    # load the default config
     if test_config is None:
         app.config.from_mapping(
             SECRET_KEY=os.environ.get('SECRET_KEY'),
@@ -78,19 +82,18 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
     
-    # initialise the database here
+    # initialise the database
     db.app=app
     db.init_app(app)
     
-    # initialise jwt here
+    # initialise jwt
     jwt.init_app(app)
     # initialise migrations
-    Migrate(app, db)
-    # initialise the limiter here
+    migrate.init_app(app, db)
+    # initialise the limiter
     limiter.init_app(app)
     # initialise mail
     mail.init_app(app)
-    # initialise cors
 
     # initialise swagger ui blueprint
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
@@ -102,7 +105,7 @@ def create_app(test_config=None):
 
     # import more blueprints
     from .auth.user_auth import auth
-    from .routes.generate_stories import story_bp
+    # from .routes.generate_stories import story_bp
     from .routes.character_chat import chat_bp
     
     # configure blueprints here
@@ -129,22 +132,22 @@ def create_app(test_config=None):
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
         return jsonify({
-            "error": "token_expired",
-            "msg": "Invalid token"
+            "error": "token_expired.",
+            "msg": "Invalid token."
         }), HTTP_401_UNAUTHORIZED
 
     @jwt.unauthorized_loader
     def missing_token_callback(error):
         return jsonify({
-            "error": "authorization_required",
-            "msg": "Invalid token"
+            "error": "authorization_required.",
+            "msg": "Invalid token."
         }), HTTP_401_UNAUTHORIZED
     
     @jwt.invalid_token_loader
     def invalid_token_callback(error):
         return jsonify({
-            "error": "invalid_token",
-            "msg": "Invalid token"
+            "error": "invalid_token.",
+            "msg": "Invalid token."
         }), HTTP_422_UNPROCESSABLE_ENTITY
     
     # Kill inactive database sessions
