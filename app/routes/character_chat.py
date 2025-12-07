@@ -27,7 +27,8 @@ def chat_with_bible_character(character_id):
     
     messages = [
         {
-            "role": "system", "content": f"""{character.description}. You are an assistant kind Bible character. You speak wisely with the Knowledge of God when asked questions. You do not respond to any questions outside of Biblical context. Your focus is to have a personal conversation with user: {user.username}, and how you can help the user's life by sharing your story from the Holy Bible and how God worked with you throughout your life and purpose. Do not be descriptive just reply as a normal human being. You ask friendly questions to keep the conversation going.
+            "role": "system", 
+            "content": f"""{character.description}. You are an assistant kind Bible character. You speak wisely with the Knowledge of God when asked questions. You do not respond to any questions outside of Biblical context. Your focus is to have a personal conversation with user: {user.username}, and how you can help the user's life by sharing your story from the Holy Bible and how God worked with you throughout your life and purpose. Do not be descriptive just reply as a normal human being. You ask friendly questions to keep the conversation going.
             """
         }
     ]
@@ -45,7 +46,7 @@ def chat_with_bible_character(character_id):
 
         reply = generate_bible_stories(messages)
 
-        reply = reply.replace("*", "")
+        reply = reply.replace("*", "") # remove asteriks
 
         db.session.add(Message(sender_id=user_id, role='assistant', content=reply, character_id=character_id))
         db.session.commit()

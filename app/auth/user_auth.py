@@ -24,22 +24,22 @@ def register():
 
         # validating the name 
         if len(username) < 3:
-            return jsonify({'error': "Name is too short"}), HTTP_400_BAD_REQUEST
+            return jsonify({'error': "Name is too short."}), HTTP_400_BAD_REQUEST
         
         if password == '' or not password or not username or not email:
             return jsonify({'error': 'Required fields should not be empty.'}), HTTP_400_BAD_REQUEST
         
         # validate the user email
         if not validators.email(email):
-            return jsonify({"error": "Email is not valid"}), HTTP_400_BAD_REQUEST
+            return jsonify({"error": "Email is not valid."}), HTTP_400_BAD_REQUEST
         
         # check if the user email is not already registered in the database
         if Users.query.filter_by(email=email).first():
-            return jsonify({'error': "Email already exist"}), HTTP_409_CONFLICT
+            return jsonify({'error': "Email already exist."}), HTTP_409_CONFLICT
         
         # check if the username is not already registered in the database
         if Users.query.filter_by(username=username).first():
-            return jsonify({"error": 'Username already exist'}), HTTP_409_CONFLICT
+            return jsonify({"error": 'Username already exist.'}), HTTP_409_CONFLICT
 
         # generate hashed password
         password_hashed = generate_password_hash(password)
@@ -51,6 +51,7 @@ def register():
         if not file_url:
             return jsonify({'error': 'Invalid file type.'}), HTTP_400_BAD_REQUEST
 
+        # Then register the user to the database
         user = Users(username=username, email=email, password_hash=password_hashed, profile_pic_url=file_url)
         db.session.add(user)
         db.session.commit()
