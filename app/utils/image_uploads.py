@@ -1,11 +1,11 @@
-# upload images to the static folder
+# This module handles image uploads to Supabase storage
 import os
 from werkzeug.utils import secure_filename
 import uuid
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
-load_dotenv()
+load_dotenv(override=True)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
@@ -15,7 +15,7 @@ SUPABASE_KEY=os.getenv('SUPABASE_KEY')
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Check allowed file types
+# Check allowed file types and return the file extension
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -28,6 +28,7 @@ def upload_image_to_supabase(file):
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         extension = filename.rsplit('.', 1)[1].lower()
+        # Generate a unique filename
         filename = f"{uuid.uuid4().hex}.{extension}"
 
         file_path_in_bucket = f"{folder_in_bucket}/{filename}"

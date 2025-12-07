@@ -45,6 +45,7 @@ class Message(db.Model):
 
     sender = db.relationship('Users', backref='messages', lazy=True)
     character = db.relationship('Character', backref='messages', lazy=True)
+    
     def __repr__(self) -> str:
         return f'Message>>>{self.id}'
     
@@ -55,7 +56,8 @@ class Message(db.Model):
             "created_at": self.created_at.isoformat() + 'Z' if self.created_at else None,
             "updated_at": self.updated_at
         }
-
+    
+# Bible Characters table
 class Character(db.Model):
     __tablename__ = 'bible_characters'
     id = db.Column(db.Integer, primary_key=True)
@@ -66,7 +68,16 @@ class Character(db.Model):
 
     def __repr__(self) -> str:
         return f'Character>>>{self.id}'
+    
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "description": self.description,
+            "profile_image_url": self.profile_image_url,
+            "book": self.book
+        }
 
+# Bible Stories table
 class Story(db.Model):
     __tablename__ = 'bible_stories'
     id = db.Column(db.Integer, primary_key=True)
@@ -77,6 +88,7 @@ class Story(db.Model):
 
     def __repr__(self) -> str:
         return f'Story>>>{self.id}'
+    
     def to_dict(self):
         return {
             "role": self.role,

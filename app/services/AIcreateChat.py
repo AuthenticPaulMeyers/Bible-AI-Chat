@@ -2,7 +2,7 @@ import os
 from openai import OpenAI # pyright: ignore[reportMissingImports]
 from dotenv import load_dotenv # pyright: ignore[reportMissingImports]
 
-load_dotenv()
+load_dotenv(override=True)
 
 def generate_bible_stories(prompt, conversation_history):
     
